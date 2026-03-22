@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}PortalAuth{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+  <nav class="container-fluid pa-nav">
+    <ul>
+      <li><strong class="brand">🔑 PortalAuth</strong></li>
+    </ul>
+    <ul>
+      {% block nav_links %}
+      <li><a href="/setup" class="secondary">Setup</a></li>
+      <li><a href="/logout" role="button" class="outline secondary pa-logout-btn">Logout</a></li>
+      {% endblock %}
+    </ul>
+  </nav>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+
+</html>

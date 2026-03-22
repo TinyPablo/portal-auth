@@ -5,7 +5,7 @@
 * **No Fluff:** Do NOT output conversational greetings, summaries, or phrases like "Here is the code" or "Let me know if you need help."
 * **No Placeholders:** Write complete, functional code. Do NOT use comments like `# ... rest of code here` or `# implement logic`.
 * **Structural Mandate:** Use `fastapi.templating.Jinja2Templates` and `fastapi.staticfiles.StaticFiles`. You MUST split the code:
-    * `main.py`: Core logic and routes.
+    * `app.py`: Core logic and routes.
     * `templates/`: Jinja2 HTML files (`base.html`, `login.html`, `hub.html`, `setup.html`).
     * `static/`: CSS and assets.
 
@@ -21,7 +21,7 @@
 * **Deployment:** Docker (Alpine or Slim base image).
 
 ## 4. Core Endpoints & Logic
-The application MUST implement the following routes in `main.py`:
+The application MUST implement the following routes in `app.py`:
 
 * `GET /auth-check`: The Traefik ForwardAuth gate. 
   * If the session cookie is valid, return `200 OK`. 

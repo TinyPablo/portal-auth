@@ -1,0 +1,226 @@
+:root {
+  --pa-accent: #6c9ef8;
+  --pa-accent-hover: #4f82f5;
+  --pa-card-bg: #1e2130;
+  --pa-card-border: rgba(108, 158, 248, 0.15);
+  --pa-card-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --pa-radius: 14px;
+  --pa-transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #111420;
+}
+
+main.container {
+  flex: 1;
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.pa-nav {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+}
+
+.brand {
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  color: var(--pa-accent);
+}
+
+.pa-logout-btn {
+  --pico-border-color: rgba(255, 255, 255, 0.25);
+  font-size: 0.85rem;
+  padding: 0.35rem 0.9rem;
+}
+
+.pa-footer {
+  text-align: center;
+  padding: 1.2rem 0;
+  color: rgba(255, 255, 255, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pa-login-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.pa-login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--pa-card-bg);
+  border: 1px solid var(--pa-card-border);
+  border-radius: var(--pa-radius);
+  box-shadow: var(--pa-card-shadow);
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.pa-login-card header hgroup h1 {
+  font-size: 3rem;
+  margin-bottom: 0.2rem;
+}
+
+.pa-login-card header hgroup h2 {
+  font-size: 1.5rem;
+  color: var(--pa-accent);
+  margin-bottom: 0.25rem;
+}
+
+.pa-login-card header hgroup p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+.pa-error {
+  background: rgba(220, 60, 60, 0.15);
+  border: 1px solid rgba(220, 60, 60, 0.35);
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  color: #f87171;
+  font-size: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+
+.pa-pin-wrap {
+  margin: 1.5rem 0 1.2rem;
+}
+
+.pa-pin-input {
+  font-size: 2rem !important;
+  letter-spacing: 0.55em !important;
+  text-align: center !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--pa-card-border) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  padding: 0.65rem 0.5rem !important;
+  width: 100% !important;
+  caret-color: var(--pa-accent);
+  transition: var(--pa-transition);
+}
+
+.pa-pin-input:focus {
+  border-color: var(--pa-accent) !important;
+  box-shadow: 0 0 0 3px rgba(108, 158, 248, 0.2) !important;
+}
+
+.pa-login-btn {
+  width: 100%;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  border-radius: 10px;
+  transition: var(--pa-transition);
+}
+
+.pa-hub-header {
+  margin-bottom: 2rem;
+}
+
+.pa-hub-header h2 {
+  color: var(--pa-accent);
+  margin-bottom: 0.2rem;
+}
+
+.pa-hub-header p {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.pa-service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1.2rem;
+}
+
+.pa-service-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.8rem 1rem;
+  background: var(--pa-card-bg);
+  border: 1px solid var(--pa-card-border);
+  border-radius: var(--pa-radius);
+  box-shadow: var(--pa-card-shadow);
+  text-decoration: none;
+  color: inherit;
+  transition: var(--pa-transition);
+  cursor: pointer;
+}
+
+.pa-service-card:hover {
+  border-color: var(--pa-accent);
+  box-shadow: 0 6px 30px rgba(108, 158, 248, 0.18);
+  transform: translateY(-3px);
+  color: var(--pa-accent);
+}
+
+.pa-svc-icon {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.pa-svc-name {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.pa-svc-url {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+  word-break: break-all;
+  text-align: center;
+}
+
+.pa-service-card:hover .pa-svc-url {
+  color: rgba(108, 158, 248, 0.6);
+}
+
+.pa-setup-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.pa-setup-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--pa-card-bg);
+  border: 1px solid var(--pa-card-border);
+  border-radius: var(--pa-radius);
+  box-shadow: var(--pa-card-shadow);
+  padding: 2.5rem 2rem;
+}
+
+.pa-qr-container {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.pa-qr-img {
+  border-radius: 10px;
+  border: 4px solid #fff;
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+}
+
+.pa-setup-steps {
+  margin: 1.5rem 0 0;
+  padding-left: 1.3rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.9;
+  font-size: 0.92rem;
+}

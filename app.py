@@ -1,86 +1,126 @@
-import pyotp
-import qrcode
 import io
 import os
-from dotenv import load_dotenv
 import base64
+
+import pyotp
+import qrcode
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
 load_dotenv()
 
-app = FastAPI(title="TOTP Auth Sandbox")
+ADMIN_SECRET = os.getenv("ADMIN_SECRET", "")
+SESSION_SECRET = os.getenv("SESSION_SECRET", "change-me-in-production")
+SECURE_COOKIES = os.getenv("SECURE_COOKIES", "true").lower() == "true"
+DISABLE_SETUP = os.getenv("DISABLE_SETUP", "false").lower() == "true"
+ALLOW_UNAUTHENTICATED_SETUP = os.getenv("ALLOW_UNAUTHENTICATED_SETUP", "false").lower() == "true"
 
-app.add_middleware(SessionMiddleware, secret_key="super-secret-sandbox-key")
+COOKIE_MAX_AGE = 60 * 60 * 24 * 30  # 30 days
 
-ADMIN_SECRET = os.getenv("ADMIN_SECRET", "dummy-secret-if-missing")
+app = FastAPI(title="PortalAuth")
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=SESSION_SECRET,
+    max_age=COOKIE_MAX_AGE,
+    https_only=SECURE_COOKIES,
+    same_site="lax",
+)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+
+def is_authenticated(request: Request) -> bool:
+    return request.session.get("authenticated") is True
+
+
+@app.get("/auth-check")
+async def auth_check(request: Request):
+    forwarded_uri = request.headers.get("X-Forwarded-Uri", "/")
+    if is_authenticated(request):
+        return Response(status_code=200)
+    return Response(
+        status_code=401,
+        headers={"WWW-Authenticate": f'redirect="/login?next={forwarded_uri}"'},
+    )
+
+
+SERVICES = [
+    {"name": "Traefik", "url": "https://traefik.local", "icon": "🔀"},
+    {"name": "Portainer", "url": "https://portainer.local", "icon": "🐳"},
+    {"name": "Grafana", "url": "https://grafana.local", "icon": "📊"},
+    {"name": "Prometheus", "url": "https://prometheus.local", "icon": "🔥"},
+    {"name": "Uptime Kuma", "url": "https://kuma.local", "icon": "🟢"},
+    {"name": "Vaultwarden", "url": "https://vault.local", "icon": "🔐"},
+    {"name": "Home Assistant", "url": "https://ha.local", "icon": "🏠"},
+    {"name": "Nextcloud", "url": "https://cloud.local", "icon": "☁️"},
+]
+
 
 @app.get("/")
-async def root(request: Request):
-    """Check if the user has a valid session."""
-    if request.session.get("authenticated"):
-        return {"status": "Access Granted", "message": "Welcome to the Hub!"}
-    return {"status": "unauthorized", "action": "go to /login"}
+async def hub(request: Request):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/login", status_code=302)
+    return templates.TemplateResponse(
+        "hub.html",
+        {"request": request, "services": SERVICES},
+    )
+
 
 @app.get("/setup")
-async def setup():
-    """Generates a QR code to scan with Google Authenticator."""
-    uri = pyotp.totp.TOTP(ADMIN_SECRET).provisioning_uri(
-        name="admin@homelab", 
-        issuer_name="PortalAuth"
-    )
+async def setup(request: Request):
+    if DISABLE_SETUP:
+        return Response(status_code=404)
     
+    if not ALLOW_UNAUTHENTICATED_SETUP and not is_authenticated(request):
+        return RedirectResponse(url="/login", status_code=302)
+
+    uri = pyotp.TOTP(ADMIN_SECRET).provisioning_uri(
+        name="admin@homelab",
+        issuer_name="PortalAuth",
+    )
+
     img = qrcode.make(uri)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
-    base64_img = base64.b64encode(buf.getvalue()).decode("utf-8")
-    
-    html = f"""
-    <html>
-        <body style="text-align: center; margin-top: 50px; font-family: sans-serif;">
-            <h1>1. Open Google Authenticator</h1>
-            <h1>2. Scan this QR Code</h1>
-            <img src="data:image/png;base64,{base64_img}">
-            <br><br>
-            <a href="/login" style="font-size: 20px;">Go to Login</a>
-        </body>
-    </html>
-    """
-    return HTMLResponse(html)
+    qr_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    return templates.TemplateResponse(
+        "setup.html",
+        {"request": request, "qr_b64": qr_b64},
+    )
+
 
 @app.get("/login")
-async def login_get():
-    """Show the login form."""
-    html = """
-    <html>
-        <body style="text-align: center; margin-top: 50px; font-family: sans-serif;">
-            <h2>Enter your 6-digit code</h2>
-            <form method="post">
-                <input name="token" type="text" autocomplete="off" autofocus 
-                       style="font-size: 24px; text-align: center; width: 150px;" 
-                       placeholder="000000" maxlength="6">
-                <br><br>
-                <button type="submit" style="font-size: 20px;">Login</button>
-            </form>
-        </body>
-    </html>
-    """
-    return HTMLResponse(html)
+async def login_get(request: Request, error: int = 0, next: str = "/"):
+    if is_authenticated(request):
+        return RedirectResponse(url="/", status_code=302)
+    return templates.TemplateResponse(
+        "login.html",
+        {"request": request, "error": bool(error), "next": next},
+    )
+
 
 @app.post("/login")
-async def login_post(request: Request, token: str = Form(...)):
-    """Verify the 6-digit code submitted by the user."""
+async def login_post(
+    request: Request,
+    token: str = Form(...),
+    next: str = Form(default="/"),
+):
     totp = pyotp.TOTP(ADMIN_SECRET)
-    
-    if totp.verify(token):
+    if totp.verify(token, valid_window=1):
         request.session["authenticated"] = True
-        return RedirectResponse(url="/", status_code=303)
-    
-    return HTMLResponse("<h1>Invalid Token. Go back and try again.</h1>", status_code=401)
+        redirect_to = next if next.startswith("/") else "/"
+        return RedirectResponse(url=redirect_to, status_code=303)
+    return RedirectResponse(url=f"/login?error=1&next={next}", status_code=303)
+
 
 @app.get("/logout")
 async def logout(request: Request):
-    """Destroy the session cookie."""
     request.session.clear()
-    return RedirectResponse(url="/")
+    return RedirectResponse(url="/login", status_code=302)

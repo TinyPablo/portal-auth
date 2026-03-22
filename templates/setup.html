@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Setup – PortalAuth{% endblock %}
+
+{% block content %}
+<div class="pa-setup-wrap">
+  <article class="pa-setup-card">
+    <header>
+      <hgroup>
+        <h2>📱 Google Authenticator Setup</h2>
+        <p>Scan this QR code to add PortalAuth to your authenticator app.</p>
+      </hgroup>
+    </header>
+
+    <div class="pa-qr-container">
+      <img
+        src="data:image/png;base64,{{ qr_b64 }}"
+        alt="TOTP QR Code"
+        class="pa-qr-img"
+      />
+    </div>
+
+    <ol class="pa-setup-steps">
+      <li>Open <strong>Google Authenticator</strong> (or any TOTP app).</li>
+      <li>Tap <strong>+</strong> → <em>Scan a QR code</em>.</li>
+      <li>Scan the image above.</li>
+      <li>Use the generated 6-digit code to <a href="/login">log in</a>.</li>
+    </ol>
+
+    <footer>
+      <a href="/" role="button" class="outline">← Back to Hub</a>
+    </footer>
+  </article>
+</div>
+{% endblock %}

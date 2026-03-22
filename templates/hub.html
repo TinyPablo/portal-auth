@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Hub – PortalAuth{% endblock %}
+
+{% block content %}
+<hgroup class="pa-hub-header">
+  <h2>Homelab Dashboard</h2>
+  <p>All your self-hosted services, one place.</p>
+</hgroup>
+
+<div class="pa-service-grid">
+  {% for svc in services %}
+  <a href="{{ svc.url }}" class="pa-service-card" target="_blank" rel="noopener noreferrer">
+    <span class="pa-svc-icon">{{ svc.icon }}</span>
+    <span class="pa-svc-name">{{ svc.name }}</span>
+    <span class="pa-svc-url">{{ svc.url }}</span>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}
